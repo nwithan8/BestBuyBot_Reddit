@@ -16,8 +16,6 @@ reddit = praw.Reddit(client_id=os.environ.get('BBB_CLIENT_ID'), client_secret=os
 if not reddit.read_only:
     print("Connected and running.")
 
-response_backlog = []
-
 
 def process(comment, text, rateLimitPlea=None, failedCount=0):
     if text:
@@ -64,18 +62,6 @@ def parse_message(message):
     return ' '.join([word.lower() for word in message.split() if (word != mention and word != '/' + mention)])
 
 
-def backlog():
-    global response_backlog
-    for item in response_backlog:
-        try:
-            process(comment=item.body, text=item.body)
-            item[0].reply(item[1])
-            response_backlog.remove(item)
-            item[0].mark_read()
-        except (praw.exceptions.APIException, praw.errors.RateLimitExceeded):
-            pass
-
-
 def time_to_wait(errorMessage):
     try:
         msg = str(errorMessage).lower()
@@ -98,10 +84,3 @@ def main():
 
 
 main()
-
-"""
-while True:
-    print("Checking...")
-    main()
-    time.sleep(1)
-"""
